@@ -101,11 +101,56 @@
       transformRequest: transformRequest
     });
 
+    map.on('load', () => {
+        // Load an image from an external URL.
+        map.loadImage(
+            'https://www.google.com/search?q=playa+de+la+concha&sxsrf=AOaemvKandfDXtw2cIw9DLTr7lgqbCJOeA:1635359265756&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjIwfWAnOvzAhUGTTABHfFeB3oQ_AUoAnoECAEQBA&biw=500&bih=773&dpr=2#imgrc=l-GvENqg9VgWCM',
+            (error,image) => {
+                if (error) throw error;
+
+                // Add the image to the map style
+                map.addImage('beach', image);
+
+                // Add a data source containing one point feature.
+                map.addSource('point', {
+                    'type': 'geojson',
+                    'data': {
+                        'type': 'FeatureCollection',
+                        'features': [
+                            {
+                                'type': 'Feature',
+                                'geometry': {
+                                    'type': 'Point',
+                                    'coordinates': [43.3186, -1.986]
+                                }
+                            }
+                        ]    
+                    }
+                });
+                
+                // Add a layer to use the image to represent the data.
+                map.addLayer({
+                    'id': 'points',
+                    'type': 'symbol',
+                    'source': 'point', // reference the data source
+                    'layout': {
+                        'icon-image': 'beach', // reference the image 
+                        'icon-size': 0.25
+                    }
+                });
+            }
+        );
+    });
+</script>
+
+</body>
+</html>
+
     $(document).ready(function () {
       $.ajax({
         type: "GET",
         //YOUR TURN: Replace with csv export link
-        url: 'https://docs.google.com/spreadsheets/d/1SrmZQFWFvqZVOR95YzLulNCcAs8QZToiHPCrAOkc0TY/edit?usp=sharing',
+        url: 'https://docs.google.com/spreadsheets/d/1SrmZQFWFvqZVOR95YzLulNCcAs8QZToiHPCrAOkc0TY/gviz/tq?tqx=out:csv&sheet=Map',
         dataType: "text",
         success: function (csvData) { makeGeoJSON(csvData); }
       });
@@ -125,11 +170,11 @@
               'id': 'csvData',
               'type': 'circle',
               'source': {
-                'type': 'geojson',
+                'type': 'symbol',
                 'data': data
               },
               'paint': {
-                'circle-radius': 5,
+                'circle-radius': 15,
                 'circle-color': "blue"
               }
             });
